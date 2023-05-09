@@ -1,4 +1,5 @@
 <h2 align="center">BattleSweeper-Backend</h2>
+
 ### API v1 Specifications
 + `ws:/queue/register`: Register a user to the game-matching queue
   + params:
