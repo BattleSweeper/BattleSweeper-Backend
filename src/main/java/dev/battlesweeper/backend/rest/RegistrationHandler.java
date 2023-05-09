@@ -2,7 +2,7 @@ package dev.battlesweeper.backend.rest;
 
 import dev.battlesweeper.backend.auth.EmailSender;
 import dev.battlesweeper.backend.db.UserService;
-import dev.battlesweeper.backend.objects.User;
+import dev.battlesweeper.backend.objects.user.RegisteredUser;
 import dev.battlesweeper.backend.socket.WebSocketConfig;
 import dev.battlesweeper.backend.socket.packet.ResultPacket;
 import dev.battlesweeper.backend.utils.EmailUtils;
@@ -28,6 +28,9 @@ public class RegistrationHandler {
         if (pendingRegs.containsKey(email))
             return new ResultPacket(ResultPacket.RESULT_FAILURE, "ALREADY_SENT");
 
+        if (userService.findByEmail(email).isPresent())
+            return new ResultPacket(ResultPacket.RESULT_FAILURE, "ACCOUNT_EXISTS");
+
         var code  = StringUtils.randomAlphanumeric(8);
         EmailSender.getInstance().sendMail(email, EmailUtils.buildMailContent(code));
 
@@ -47,12 +50,13 @@ public class RegistrationHandler {
             return new ResultPacket(ResultPacket.RESULT_FAILURE, "HASH_FAILURE");
         }
 
-        var user = User.builder()
+        var newUser = RegisteredUser.builder()
                 .email(form.email)
                 .name(form.name)
                 .pwHash(pwHash)
+                .joinMillis(System.currentTimeMillis())
                 .build();
-        userService.join(user);
-        return new ResultPacket(ResultPacket.RESULT_OK, user.getId().toString());
+        userService.put(newUser);
+        return new ResultPacket(ResultPacket.RESULT_OK, newUser.getId().toString());
     }
 }
