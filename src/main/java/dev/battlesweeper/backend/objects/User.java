@@ -1,25 +1,14 @@
 package dev.battlesweeper.backend.objects;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.*;
+public interface User {
 
-@Entity
-@Builder
-@Getter @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED) @AllArgsConstructor
-public class User {
+        public Long getId();
 
-        @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-        Long id;
+        public String getEmail();
 
-        String email;
+        public String getPwHash();
 
-        String pwHash;
+        public String getName();
 
-        String name;
-
-        Long joinMillis = System.currentTimeMillis();
+        public User overwrite(User user);
 }
