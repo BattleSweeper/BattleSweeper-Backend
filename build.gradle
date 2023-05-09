@@ -1,0 +1,70 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.0.6'
+    id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group = 'dev.battlesweeper'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    def manifold_version = "2023.1.6"
+
+    //implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.6'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
+    implementation 'org.slf4j:slf4j-api:2.0.7'
+    implementation 'org.slf4j:log4j-over-slf4j:2.0.7'
+
+    implementation 'com.sun.mail:javax.mail:1.6.2'
+    implementation 'javax.mail:javax.mail-api:1.6.2'
+    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
+
+    implementation "systems.manifold:manifold-ext:$manifold_version"
+    annotationProcessor "systems.manifold:manifold-strings:$manifold_version"
+
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+if (JavaVersion.current() != JavaVersion.VERSION_1_8 &&
+        sourceSets.main.allJava.files.any {it.name == "module-info.java"}) {
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            // if you DO define a module-info.java file:
+            options.compilerArgs += ['-Xplugin:Manifold', '--module-path', it.classpath.asPath]
+        }
+    }
+} else {
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            // If you DO NOT define a module-info.java file:
+            options.compilerArgs += ['-Xplugin:Manifold']
+        }
+    }
+}

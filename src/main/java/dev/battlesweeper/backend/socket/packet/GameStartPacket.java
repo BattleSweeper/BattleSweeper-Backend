@@ -1,0 +1,12 @@
+package dev.battlesweeper.backend.socket.packet;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dev.battlesweeper.backend.objects.Position;
+import lombok.AllArgsConstructor;
+
+@JsonDeserialize(as = ResultPacket.class)
+@AllArgsConstructor
+public final class GameStartPacket extends Packet {
+
+    public Position[] mines;
+}
