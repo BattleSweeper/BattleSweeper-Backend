@@ -1,8 +1,5 @@
 package dev.battlesweeper.backend.utils;
 
-import dev.battlesweeper.backend.auth.cypher.SHA256;
-
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 public class StringUtils {
@@ -17,9 +14,5 @@ public class StringUtils {
                 .limit(length)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
-    }
-
-    public static String generateSHA256Hash(String original) throws NoSuchAlgorithmException {
-        return new SHA256().encrypt(original);
     }
 }

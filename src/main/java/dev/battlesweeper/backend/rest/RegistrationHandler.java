@@ -1,6 +1,7 @@
 package dev.battlesweeper.backend.rest;
 
 import dev.battlesweeper.backend.auth.EmailSender;
+import dev.battlesweeper.backend.auth.cypher.SHA256;
 import dev.battlesweeper.backend.db.UserService;
 import dev.battlesweeper.backend.objects.user.RegisteredUser;
 import dev.battlesweeper.backend.socket.WebSocketConfig;
@@ -45,7 +46,7 @@ public class RegistrationHandler {
 
         String pwHash;
         try {
-            pwHash = StringUtils.generateSHA256Hash(form.password);
+            pwHash = SHA256.encrypt(form.password);
         } catch (NoSuchAlgorithmException e) {
             return new ResultPacket(ResultPacket.RESULT_FAILURE, "HASH_FAILURE");
         }
