@@ -1,6 +1,5 @@
 package dev.battlesweeper.backend.objects.user;
 
-import dev.battlesweeper.backend.objects.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

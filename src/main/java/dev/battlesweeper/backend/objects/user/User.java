@@ -1,4 +1,4 @@
-package dev.battlesweeper.backend.objects;
+package dev.battlesweeper.backend.objects.user;
 
 public interface User {
 

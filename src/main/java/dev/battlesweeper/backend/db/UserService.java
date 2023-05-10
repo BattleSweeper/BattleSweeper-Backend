@@ -1,6 +1,5 @@
 package dev.battlesweeper.backend.db;
 
-import dev.battlesweeper.backend.objects.User;
 import dev.battlesweeper.backend.objects.user.RegisteredUser;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
