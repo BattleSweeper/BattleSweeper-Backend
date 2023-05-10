@@ -12,17 +12,11 @@ public class AnonymousUser implements User {
 
     Long id;
 
-    String email;
-
-    String pwHash;
-
     String name;
 
     @Override
     public User overwrite(User user) {
         id = user.getId();
-        email = user.getEmail();
-        pwHash = user.getPwHash();
         name = user.getName();
         return this;
     }

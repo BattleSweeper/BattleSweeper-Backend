@@ -24,11 +24,12 @@ public class RegisteredUser implements User {
     @Override
     public RegisteredUser overwrite(User user) {
         id = user.getId();
-        email = user.getEmail();
-        pwHash = user.getPwHash();
         name = user.getName();
-        if (user instanceof RegisteredUser)
-            joinMillis = ((RegisteredUser) user).getJoinMillis();
+        if (user instanceof RegisteredUser nUser) {
+            email = nUser.getEmail();
+            pwHash = nUser.getPwHash();
+            joinMillis = nUser.getJoinMillis();
+        }
         return this;
     }
 }
