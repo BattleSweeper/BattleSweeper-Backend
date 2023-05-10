@@ -33,9 +33,9 @@ public class GameSession {
         return connections.containsKey(token);
     }
 
-    public boolean hasUser(UUID userId) {
+    public boolean hasUser(Long userId) {
         for (var conn : connections.values()) {
-            if (conn.user().id() == userId)
+            if (Objects.equals(conn.getUser().getId(), userId))
                 return true;
         }
         return false;

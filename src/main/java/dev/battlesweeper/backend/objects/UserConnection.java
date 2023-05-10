@@ -1,31 +1,23 @@
 package dev.battlesweeper.backend.objects;
 
+import dev.battlesweeper.backend.objects.user.User;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 
+@AllArgsConstructor
+@Getter
 public class UserConnection {
 
-    private final UserInfo user;
+    private final User user;
     private WebSocketSession session;
 
-    public UserConnection(UserInfo user, WebSocketSession session) {
-        this.user    = user;
-        this.session = session;
-    }
-
-    public UserConnection(UserInfo user) {
+    public UserConnection(User user) {
         this(user, null);
-    }
-
-    public UserInfo user() {
-        return user;
-    }
-
-    public WebSocketSession session() {
-        return this.session;
     }
 
     public void setSession(WebSocketSession session) {

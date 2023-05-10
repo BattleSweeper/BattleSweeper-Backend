@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.battlesweeper.backend.auth.AuthTokenManager;
 import dev.battlesweeper.backend.game.GameSessionManager;
 import dev.battlesweeper.backend.objects.UserConnection;
-import dev.battlesweeper.backend.objects.UserInfo;
+import dev.battlesweeper.backend.objects.user.User;
 import dev.battlesweeper.backend.socket.packet.GameFoundPacket;
 import dev.battlesweeper.backend.socket.packet.Packet;
 import lombok.NonNull;
@@ -43,30 +43,40 @@ public class QueueHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         logger.info("New connection established");
         HttpHeaders headers = session.getHandshakeHeaders();
-        var userId = headers.getFirst("user-id");
-        var userName = headers.getFirst("user-name");
-        if (userId == null || userName == null) {
-            session.close(CloseStatus.BAD_DATA);
+        var token = headers.getFirst("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            session.close(CloseStatus.NOT_ACCEPTABLE);
             return;
         }
 
-        var nUser = new UserInfo(UUID.fromString(userId), userName);
-        logger.info(String.valueOf(nUser));
+        token = token.substring("Bearer ".length());
+        if (!AuthTokenManager.getInstance().isTokenValid(token)) {
+            session.close(CloseStatus.NOT_ACCEPTABLE);
+            return;
+        }
 
-        userQueue.offer(QueueData.fromUser(nUser, session));
+        var nUser = AuthTokenManager.getInstance().getUserFromToken(token);
+        if (nUser.isEmpty()) {
+            session.close(CloseStatus.SERVER_ERROR);
+            return;
+        }
+        var user = nUser.get();
+        logger.info(String.valueOf(user));
+
+        userQueue.offer(QueueData.fromUser(user, session));
 
         if (userQueue.size() >= QUEUE_BLOCK_SIZE) {
             UserConnection[] connections = new UserConnection[QUEUE_BLOCK_SIZE];
             for (var i = 0; i < QUEUE_BLOCK_SIZE; ++i)
                 connections[i] = userQueue.poll().getConnection();
 
-            var users  = Arrays.stream(connections).map(UserConnection::user).toList();
+            var users  = Arrays.stream(connections).map(UserConnection::getUser).toList();
             var roomID = GameSessionManager.getInstance().createSession(new HashMap<>());
 
-            for (var user : connections) {
-                var mSession = user.session();
-                var token  = AuthTokenManager.getInstance().createAndRegisterToken();
-                var packet = new GameFoundPacket(roomID, token);
+            for (var connection : connections) {
+                var mSession = connection.getSession();
+                //var token  = AuthTokenManager.getInstance().createAndRegisterToken();
+                var packet = new GameFoundPacket(roomID);
                 mSession.sendMessage(new TextMessage(objMapper.writeValueAsString(packet)));
                 mSession.close(CloseStatus.NORMAL);
 
@@ -78,11 +88,11 @@ public class QueueHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         logger.info("Connection closed with status $status");
         if (status != CloseStatus.NORMAL) {
-            UserInfo user = null;
+            User user = null;
             for (Iterator<QueueData> it = userQueue.iterator(); it.hasNext();) {
                 var data = it.next();
-                if (data.getConnection().session() == session) {
-                    user = data.getConnection().user();
+                if (data.getConnection().getSession() == session) {
+                    user = data.getConnection().getUser();
                     it.remove();
                     break;
                 }
