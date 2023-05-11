@@ -79,7 +79,6 @@ public class QueueHandler extends TextWebSocketHandler {
                 var packet = new GameFoundPacket(roomID);
                 mSession.sendMessage(new TextMessage(objMapper.writeValueAsString(packet)));
                 mSession.close(CloseStatus.NORMAL);
-
             }
         }
     }

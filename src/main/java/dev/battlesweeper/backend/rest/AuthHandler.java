@@ -1,8 +1,10 @@
 package dev.battlesweeper.backend.rest;
 
+import dev.battlesweeper.backend.auth.AnonymousUserManager;
 import dev.battlesweeper.backend.auth.AuthTokenManager;
 import dev.battlesweeper.backend.auth.cypher.SHA256;
 import dev.battlesweeper.backend.db.UserService;
+import dev.battlesweeper.backend.objects.user.AnonymousUser;
 import dev.battlesweeper.backend.socket.WebSocketConfig;
 import dev.battlesweeper.backend.socket.packet.ResultPacket;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +26,16 @@ public class AuthHandler {
     public ResultPacket requestLogin(@RequestBody AuthRequestBody form) {
         switch (form.type) {
             case AuthRequestBody.TYPE_ANONYMOUS -> {
-                return new ResultPacket(ResultPacket.RESULT_FAILURE, "NOT_SUPPORTED");
+                if (AnonymousUserManager.getInstance().nameExists(form.info.username))
+                    return new ResultPacket(ResultPacket.RESULT_FAILURE, "NAME_EXISTS");
+                var user = AnonymousUser.builder()
+                        .id(AnonymousUserManager.getInstance().getIncrementalID())
+                        .name(form.info.username)
+                        .build();
+                AnonymousUserManager.getInstance().registerUser(user);
+
+                var accessToken = AuthTokenManager.getInstance().createAuthToken(user);
+                return new ResultPacket(ResultPacket.RESULT_OK, accessToken.toJsonString());
             }
             case AuthRequestBody.TYPE_REGISTERED -> {
                 var query = userService.findByEmail(form.info.email);
