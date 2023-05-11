@@ -1,5 +1,7 @@
 <h2 align="center">BattleSweeper-Backend</h2>
 
+[![Java CI with Gradle](https://github.com/BattleSweeper/BattleSweeper-Backend/actions/workflows/gradle.yml/badge.svg)](https://github.com/BattleSweeper/BattleSweeper-Backend/actions/workflows/gradle.yml)
+
 #### Visit [Backend-Specs.md](./Backend-Specs.md) for details
 
 #### How to run server:
