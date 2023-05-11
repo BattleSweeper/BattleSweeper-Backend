@@ -21,7 +21,13 @@ import java.util.Optional;
 @Service
 public class AuthTokenManager {
 
-    private static final long EXPIRE_MILLIS = 1000 * 60 * 60; // 1시간
+    private static final long ACCESS_EXPIRE_MILLIS       = 1000 * 60 * 30; // 30분
+    private static final long ACCESS_EXPIRE_MILLIS_ANON  = 1000 * 60 * 10; // 10분
+    private static final long REFRESH_EXPIRE_MILLIS      = 1000 * 60 * 60 * 12; // 24시간
+
+    public static final int TOKEN_VALID   = 0;
+    public static final int TOKEN_INVALID = 1;
+    public static final int TOKEN_EXPIRED = 2;
 
     private UserService userService;
     private final Key secret;
@@ -31,20 +37,41 @@ public class AuthTokenManager {
         this.userService = service;
     }
 
-    public boolean isTokenValid(String token) {
+    public int validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(secret).build().parseClaimsJws(token);
-            return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
+            return TOKEN_VALID;
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT Token", e);
-        } catch (UnsupportedJwtException e) {
+            return TOKEN_EXPIRED;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT Token", e);;
+        }  catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
         }
-        return false;
+        return TOKEN_INVALID;
+    }
+
+    public boolean isTokenValid(String token) {
+        return validateToken(token) == TOKEN_VALID;
+    }
+
+    public String validateRefreshToken(String refreshToken) {
+        try {
+            var claims = retrieveClaims(refreshToken);
+            if (claims.getExpiration().before(new Date())) {
+                var userId = claims.get("uid", Long.class);
+                if (userId == null)
+                    return null;
+                var user = userService.findById(userId);
+                return user.map(this::issueAccessToken).orElse(null);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
     }
 
     public Optional<User> getUserFromToken(String token) {
@@ -52,7 +79,6 @@ public class AuthTokenManager {
         Long userId = claims.get("uid", Long.class);
         if (userId == null)
             return Optional.empty();
-        // TODO: Case for anonymous user
 
         Optional<User> user;
         switch (claims.get("type", Integer.class)) {
@@ -63,11 +89,10 @@ public class AuthTokenManager {
                         .build();
                 user = Optional.of(anonymousUser);
             }
-            case AuthRequestBody.TYPE_REGISTERED -> {
-                user = userService.findById(userId).map(u -> u);
-            }
+            case AuthRequestBody.TYPE_REGISTERED ->
+                    user = userService.findById(userId).map(u -> u);
             default ->
-                user = Optional.empty();
+                    user = Optional.empty();
         }
 
         return user;
@@ -92,27 +117,12 @@ public class AuthTokenManager {
     public TokenInfo createAuthToken(User user) {
         long now = System.currentTimeMillis();
 
-        int userType;
-        if (user instanceof AnonymousUser)
-            userType = AuthRequestBody.TYPE_ANONYMOUS;
-        else if (user instanceof RegisteredUser)
-            userType = AuthRequestBody.TYPE_REGISTERED;
-        else
-            throw new IllegalArgumentException("Unknown user type: " + user.getClass().getName());
-
-        Date accessTokenExpiresIn = new Date(now + EXPIRE_MILLIS);
-        String accessToken = Jwts.builder()
-                .setSubject(user.getName())
-                .claim("uid", user.getId())
-                .claim("name", user.getName())
-                .claim("type", userType)
-                .setExpiration(accessTokenExpiresIn)
-                .signWith(secret, SignatureAlgorithm.HS256)
-                .compact();
+        var accessToken = issueAccessToken(user);
 
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + EXPIRE_MILLIS))
+                .setExpiration(new Date(now + REFRESH_EXPIRE_MILLIS))
+                .claim("uid", user.getId())
                 .signWith(secret, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -121,6 +131,34 @@ public class AuthTokenManager {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    private String issueAccessToken(User user) {
+        long now = System.currentTimeMillis();
+
+        int userType;
+        if (user instanceof AnonymousUser)
+            userType = AuthRequestBody.TYPE_ANONYMOUS;
+        else if (user instanceof RegisteredUser)
+            userType = AuthRequestBody.TYPE_REGISTERED;
+        else
+            throw new IllegalArgumentException("Unknown user type: " + user.getClass().getName());
+
+        long expiresIn = ACCESS_EXPIRE_MILLIS;
+        if (userType == AuthRequestBody.TYPE_ANONYMOUS) {
+            expiresIn = ACCESS_EXPIRE_MILLIS_ANON;
+        }
+
+        Date accessTokenExpiresIn = new Date(now + expiresIn);
+
+        return Jwts.builder()
+                .setSubject(user.getName())
+                .claim("uid", user.getId())
+                .claim("name", user.getName())
+                .claim("type", userType)
+                .setExpiration(accessTokenExpiresIn)
+                .signWith(secret, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private AuthTokenManager() {
