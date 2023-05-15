@@ -1,4 +1,4 @@
-package dev.battlesweeper.backend.rest;
+package dev.battlesweeper.backend.rest.body;
 
 import lombok.*;
 

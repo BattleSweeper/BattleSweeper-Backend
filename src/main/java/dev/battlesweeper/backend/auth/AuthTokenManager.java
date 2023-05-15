@@ -4,7 +4,7 @@ import dev.battlesweeper.backend.db.UserService;
 import dev.battlesweeper.backend.objects.user.AnonymousUser;
 import dev.battlesweeper.backend.objects.user.RegisteredUser;
 import dev.battlesweeper.backend.objects.user.User;
-import dev.battlesweeper.backend.rest.AuthRequestBody;
+import dev.battlesweeper.backend.rest.body.AuthRequestBody;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

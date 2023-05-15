@@ -1,4 +1,4 @@
-package dev.battlesweeper.backend.rest;
+package dev.battlesweeper.backend.rest.body;
 
 import lombok.*;
 
@@ -18,7 +18,7 @@ public class AuthRequestBody {
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter @Setter
-    static class AuthInfo {
+    public static class AuthInfo {
 
         // Present only on Anonymous request
         public String username;

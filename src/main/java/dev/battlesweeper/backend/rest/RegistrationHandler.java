@@ -4,6 +4,7 @@ import dev.battlesweeper.backend.auth.EmailSender;
 import dev.battlesweeper.backend.auth.cypher.SHA256;
 import dev.battlesweeper.backend.db.UserService;
 import dev.battlesweeper.backend.objects.user.RegisteredUser;
+import dev.battlesweeper.backend.rest.body.RegisterRequestBody;
 import dev.battlesweeper.backend.socket.WebSocketConfig;
 import dev.battlesweeper.backend.socket.packet.ResultPacket;
 import dev.battlesweeper.backend.utils.EmailUtils;

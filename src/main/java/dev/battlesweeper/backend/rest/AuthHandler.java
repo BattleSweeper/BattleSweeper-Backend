@@ -5,8 +5,11 @@ import dev.battlesweeper.backend.auth.AuthTokenManager;
 import dev.battlesweeper.backend.auth.cypher.SHA256;
 import dev.battlesweeper.backend.db.UserService;
 import dev.battlesweeper.backend.objects.user.AnonymousUser;
+import dev.battlesweeper.backend.rest.body.AuthRequestBody;
+import dev.battlesweeper.backend.rest.body.RefreshRequestBody;
 import dev.battlesweeper.backend.socket.WebSocketConfig;
 import dev.battlesweeper.backend.socket.packet.ResultPacket;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,7 +54,7 @@ public class AuthHandler {
                 }
 
                 if (!user.getPwHash().equals(pwHash))
-                    return new ResultPacket(ResultPacket.RESULT_FAILURE, "PASSWORD_MISMATCH");
+                    return new ResultPacket(ResultPacket.RESULT_FAILURE, Message.PASSWORD_MISMATCH);
 
                 var accessToken = AuthTokenManager.getInstance().createAuthToken(user);
 
@@ -59,6 +62,22 @@ public class AuthHandler {
             }
         }
 
-        return new ResultPacket(ResultPacket.RESULT_BAD_DATA, "UNKNOWN_TYPE");
+        return new ResultPacket(HttpStatus.CONFLICT, Message.NAME_EXISTS);
+    }
+
+    @PostMapping(WebSocketConfig.ROUTE_PREFIX + "/auth/refresh")
+    public ResultPacket requestRefreshToken(@RequestBody RefreshRequestBody form) {
+        if (form.token == null)
+            return new ResultPacket(HttpStatus.NOT_ACCEPTABLE, "TOKEN_NOT_PROVIDED");
+
+        //if (!AuthTokenManager.getInstance().isTokenValid(form.token))
+        //    return new ResultPacket(HttpStatus.NOT_ACCEPTABLE, Message.TOKEN_INVALID);
+
+        System.out.println(form.token);
+
+        var newToken = AuthTokenManager.getInstance().validateRefreshToken(form.token);
+        return newToken
+                .map(tokenInfo -> new ResultPacket(HttpStatus.OK, tokenInfo.toJsonString()))
+                .orElseGet(() -> new ResultPacket(HttpStatus.NOT_ACCEPTABLE, Message.TOKEN_INVALID));
     }
 }
