@@ -23,7 +23,7 @@ public class RoomHandler extends TextWebSocketHandler {
     private final ObjectMapper objMapper = new ObjectMapper();
 
     @Override
-    protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) throws Exception {
         var gameSession = retrieveSession(session.getHandshakeHeaders());
         if (gameSession == null) {
             var packet = new ResultPacket(
