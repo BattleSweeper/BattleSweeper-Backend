@@ -9,10 +9,10 @@ public class GameSessionManager {
 
     private final Map<UUID, GameSession> sessions = new HashMap<>();
 
-    public UUID createSession(Map<String, User> users) {
+    public UUID createSession(Collection<User> users) {
         var sessionId = UUID.randomUUID();
         var connections = toConnectionMap(users);
-        var nSession = new GameSession(sessionId, connections, System.currentTimeMillis());
+        var nSession = new GameSession(sessionId, connections, new Date().getTime());
 
         sessions.put(sessionId, nSession);
 
@@ -23,9 +23,9 @@ public class GameSessionManager {
         return sessions.get(id);
     }
 
-    public GameSession getSessionByToken(String token) {
+    public GameSession getSessionOfUser(User user) {
         for (var session : sessions.values()) {
-            if (session.hasUser(token))
+            if (session.hasUser(user))
                 return session;
         }
         return null;
@@ -35,10 +35,10 @@ public class GameSessionManager {
         return sessions.values();
     }
 
-    private Map<String, UserConnection> toConnectionMap(Map<String, User> org) {
-        Map<String, UserConnection> nMap = new HashMap<>();
-        for (var key : org.keySet()) {
-            nMap.put(key, new UserConnection(org.get(key)));
+    private Map<Long, UserConnection> toConnectionMap(Collection<User> users) {
+        Map<Long, UserConnection> nMap = new HashMap<>();
+        for (var user : users) {
+            nMap.put(user.getId(), new UserConnection(user));
         }
         return nMap;
     }

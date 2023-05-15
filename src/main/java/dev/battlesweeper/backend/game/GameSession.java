@@ -1,50 +1,39 @@
 package dev.battlesweeper.backend.game;
 
 import dev.battlesweeper.backend.objects.UserConnection;
+import dev.battlesweeper.backend.objects.user.User;
+import lombok.Builder;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.*;
 
+@Builder
 public class GameSession {
 
     private UUID id;
-    private Map<String, UserConnection> connections;
+    // userId, connection
+    private Map<Long, UserConnection> connections;
     private Long startedAt;
-    private Set<String> joined = new HashSet<>();
 
-    public GameSession(UUID id, Map<String, UserConnection> connections, Long startedAt) {
+    public GameSession(UUID id, Map<Long, UserConnection> connections, Long startedAt) {
         this.id          = id;
         this.connections = connections;
         this.startedAt   = startedAt;
     }
 
-    public GameSession(UUID id, Map<String, UserConnection> connections) {
-        this(id, connections, System.currentTimeMillis());
-    }
-
-    public boolean markJoined(String token) {
-        joined.add(token);
-        return false;
-    }
-
-    public boolean hasUser(String token) {
-        return connections.containsKey(token);
+    public void markJoined(Long userId, WebSocketSession session) {
+        connections.get(userId).setSession(session);
     }
 
     public boolean hasUser(Long userId) {
-        for (var conn : connections.values()) {
-            if (Objects.equals(conn.getUser().getId(), userId))
-                return true;
-        }
-        return false;
+        return connections.containsKey(userId);
     }
 
-    public UserConnection getUserByToken(String token) {
-        if (!hasUser(token))
-            return null;
-        return connections.get(token);
+    public boolean hasUser(User user) {
+        return hasUser(user.getId());
     }
 
     public void broadcast(WebSocketMessage<?> message) throws IOException {

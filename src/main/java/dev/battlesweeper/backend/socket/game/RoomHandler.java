@@ -38,7 +38,7 @@ public class RoomHandler extends TextWebSocketHandler {
 
         if (payload.equals("test")) {
             Position[] mines = { new Position(1, 2), new Position(5, 3), new Position(10, 6) };
-            var packet = new GameStartPacket(mines);
+            var packet = new GameStartPacket(new Position(16, 16), mines);
             gameSession.broadcast(objMapper.writeValueAsString(packet));
         }
     }
@@ -55,7 +55,19 @@ public class RoomHandler extends TextWebSocketHandler {
             return;
         }
 
+        if (!token.startsWith("Bearer ")) {
+            session.close(CloseStatus.BAD_DATA);
+            return;
+        }
+        token = token.substring("Bearer ".length());
+
         if (!AuthTokenManager.getInstance().isTokenValid(token)) {
+            session.close(CloseStatus.NOT_ACCEPTABLE);
+            return;
+        }
+
+        var user = AuthTokenManager.getInstance().getUserFromToken(token);
+        if (user.isEmpty()) {
             session.close(CloseStatus.NOT_ACCEPTABLE);
             return;
         }
@@ -68,7 +80,7 @@ public class RoomHandler extends TextWebSocketHandler {
             return;
         }
 
-        gameSession.markJoined(token);
+        gameSession.markJoined(user.get().getId(), session);
         var msg = objMapper.writeValueAsString(new ResultPacket(ResultPacket.RESULT_OK, null));
         session.sendMessage(new TextMessage(msg));
     }
@@ -83,6 +95,13 @@ public class RoomHandler extends TextWebSocketHandler {
         if (token == null)
             return null;
 
-        return GameSessionManager.getInstance().getSessionByToken(token);
+        if (!token.startsWith("Bearer "))
+            return null;
+        token = token.substring("Bearer ".length());
+
+        var user = AuthTokenManager.getInstance().getUserFromToken(token);
+        return user
+                .map(value -> GameSessionManager.getInstance().getSessionOfUser(value))
+                .orElse(null);
     }
 }
