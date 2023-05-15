@@ -58,20 +58,26 @@ public class AuthTokenManager {
         return validateToken(token) == TOKEN_VALID;
     }
 
-    public String validateRefreshToken(String refreshToken) {
+    public Optional<TokenInfo> validateRefreshToken(String refreshToken) {
         try {
             var claims = retrieveClaims(refreshToken);
-            if (claims.getExpiration().before(new Date())) {
+            if (claims.getExpiration().after(new Date())) {
                 var userId = claims.get("uid", Long.class);
                 if (userId == null)
-                    return null;
+                    return Optional.empty();
+                if (userId < 0) { // Anonymous user token
+                    var name = claims.get("name", String.class);
+                    return Optional.of(createAuthToken(new AnonymousUser(userId, name)));
+                }
+
                 var user = userService.findById(userId);
-                return user.map(this::issueAccessToken).orElse(null);
+                return user.map(this::createAuthToken);
             }
         } catch (Exception e) {
-            return null;
+            log.info("Failure", e);
+            return Optional.empty();
         }
-        return null;
+        return Optional.empty();
     }
 
     public Optional<User> getUserFromToken(String token) {
@@ -123,6 +129,7 @@ public class AuthTokenManager {
         String refreshToken = Jwts.builder()
                 .setExpiration(new Date(now + REFRESH_EXPIRE_MILLIS))
                 .claim("uid", user.getId())
+                .claim("name", user.getName())
                 .signWith(secret, SignatureAlgorithm.HS256)
                 .compact();
 
