@@ -8,5 +8,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public final class GameStartPacket extends Packet {
 
+    public Position boardSize;
     public Position[] mines;
 }
