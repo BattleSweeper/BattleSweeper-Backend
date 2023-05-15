@@ -16,5 +16,7 @@ DB_HOST=<host url for mariadb connection ex)jdbc:mariadb://localhost>
 DB_PORT=<host port for mariadb connection>
 DB_USERNAME=<mariadb username>
 DB_PASSWORD=<mariadb passwd>
+
+TOKEN_SECRET_KEY=<key for jwt generation>
 ```
 3. Run `BattleSweeperBackendApplication#main` function 
