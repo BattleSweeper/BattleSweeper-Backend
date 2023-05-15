@@ -71,7 +71,7 @@ public class QueueHandler extends TextWebSocketHandler {
                 connections[i] = userQueue.poll().getConnection();
 
             var users  = Arrays.stream(connections).map(UserConnection::getUser).toList();
-            var roomID = GameSessionManager.getInstance().createSession(new HashMap<>());
+            var roomID = GameSessionManager.getInstance().createSession(users);
 
             for (var connection : connections) {
                 var mSession = connection.getSession();

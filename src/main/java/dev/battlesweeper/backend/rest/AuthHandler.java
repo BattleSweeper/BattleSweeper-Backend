@@ -27,7 +27,7 @@ public class AuthHandler {
         switch (form.type) {
             case AuthRequestBody.TYPE_ANONYMOUS -> {
                 if (AnonymousUserManager.getInstance().nameExists(form.info.username))
-                    return new ResultPacket(ResultPacket.RESULT_FAILURE, "NAME_EXISTS");
+                    return new ResultPacket(HttpStatus.CONFLICT, Message.NAME_EXISTS);
                 var user = AnonymousUser.builder()
                         .id(AnonymousUserManager.getInstance().getIncrementalID())
                         .name(form.info.username)
@@ -40,14 +40,14 @@ public class AuthHandler {
             case AuthRequestBody.TYPE_REGISTERED -> {
                 var query = userService.findByEmail(form.info.email);
                 if (query.isEmpty())
-                    return new ResultPacket(ResultPacket.RESULT_FAILURE, "NOT_FOUND");
+                    return new ResultPacket(HttpStatus.NOT_FOUND, "USER_NOT_FOUND");
 
                 var user = query.get();
                 String pwHash;
                 try {
                     pwHash = SHA256.encrypt(form.info.password);
                 } catch (NoSuchAlgorithmException e) {
-                    return new ResultPacket(ResultPacket.RESULT_FAILURE, "ENCRYPT_FAILURE");
+                    return new ResultPacket(HttpStatus.INTERNAL_SERVER_ERROR, Message.ENCRYPT_FAILURE);
                 }
 
                 if (!user.getPwHash().equals(pwHash))
