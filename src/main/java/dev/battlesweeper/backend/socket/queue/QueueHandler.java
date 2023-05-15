@@ -74,11 +74,9 @@ public class QueueHandler extends TextWebSocketHandler {
             var roomID = GameSessionManager.getInstance().createSession(users);
 
             for (var connection : connections) {
-                var mSession = connection.getSession();
-                //var token  = AuthTokenManager.getInstance().createAndRegisterToken();
                 var packet = new GameFoundPacket(roomID);
-                mSession.sendMessage(new TextMessage(objMapper.writeValueAsString(packet)));
-                mSession.close(CloseStatus.NORMAL);
+                connection.sendText(objMapper.writeValueAsString(packet));
+                connection.close(CloseStatus.NORMAL);
             }
         }
     }
