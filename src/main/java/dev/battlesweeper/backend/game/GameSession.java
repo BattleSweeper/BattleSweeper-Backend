@@ -1,8 +1,11 @@
 package dev.battlesweeper.backend.game;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.battlesweeper.backend.objects.UserConnection;
 import dev.battlesweeper.backend.objects.user.User;
+import dev.battlesweeper.backend.socket.packet.Packet;
 import lombok.Builder;
+import org.springframework.data.annotation.Transient;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -18,10 +21,19 @@ public class GameSession {
     private Map<Long, UserConnection> connections;
     private Long startedAt;
 
+    private final ObjectMapper objMapper = new ObjectMapper();
+
     public GameSession(UUID id, Map<Long, UserConnection> connections, Long startedAt) {
         this.id          = id;
         this.connections = connections;
         this.startedAt   = startedAt;
+    }
+
+    public boolean allUserJoined() {
+        return connections
+                .values()
+                .stream()
+                .allMatch(conn -> conn.getSession() != null);
     }
 
     public void markJoined(Long userId, WebSocketSession session) {
@@ -44,5 +56,9 @@ public class GameSession {
 
     public void broadcast(String message) throws IOException {
         broadcast(new TextMessage(message));
+    }
+
+    public void broadcast(Packet packet) throws IOException {
+        broadcast(objMapper.writeValueAsString(packet));
     }
 }

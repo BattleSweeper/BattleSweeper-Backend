@@ -2,11 +2,13 @@ package dev.battlesweeper.backend.socket.game;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.battlesweeper.backend.auth.AuthTokenManager;
+import dev.battlesweeper.backend.game.BoardGenerator;
 import dev.battlesweeper.backend.game.GameSession;
 import dev.battlesweeper.backend.game.GameSessionManager;
 import dev.battlesweeper.backend.objects.Position;
 import dev.battlesweeper.backend.socket.packet.GameStartPacket;
 import dev.battlesweeper.backend.socket.packet.ResultPacket;
+import dev.battlesweeper.backend.socket.packet.UserJoinPacket;
 import lombok.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -83,6 +85,15 @@ public class RoomHandler extends TextWebSocketHandler {
         gameSession.markJoined(user.get().getId(), session);
         var msg = objMapper.writeValueAsString(new ResultPacket(ResultPacket.RESULT_OK, null));
         session.sendMessage(new TextMessage(msg));
+
+        gameSession.broadcast(new UserJoinPacket(user.get()));
+
+        if (gameSession.allUserJoined()) {
+            var boardSize = new Position(16, 16);
+            var mines = BoardGenerator.generateMines(boardSize, 40);
+
+            gameSession.broadcast(new GameStartPacket(boardSize, mines));
+        }
     }
 
     @Override
