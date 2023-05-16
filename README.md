@@ -3,6 +3,7 @@
 [![Java CI with Gradle](https://github.com/BattleSweeper/BattleSweeper-Backend/actions/workflows/gradle.yml/badge.svg)](https://github.com/BattleSweeper/BattleSweeper-Backend/actions/workflows/gradle.yml)
 
 #### Visit [Backend-Specs.md](./Backend-Specs.md) for details
+#### 🔰 [Project Milestones](https://github.com/BattleSweeper/BattleSweeper-Backend/issues/1)
 
 #### How to run server:
 1. Create .env file in project root directory
