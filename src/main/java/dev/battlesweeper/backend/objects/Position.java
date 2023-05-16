@@ -15,4 +15,12 @@ public record Position(int x, int y) {
     public String toString() {
         return "[" + x + ", " + y + "]";
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Position pos))
+            return false;
+
+        return pos.x == x() && pos.y == y();
+    }
 }
