@@ -7,4 +7,4 @@ import dev.battlesweeper.backend.json.PacketSerializer;
 
 @JsonDeserialize(using = PacketDeserializer.class)
 @JsonSerialize(using = PacketSerializer.class)
-public abstract sealed class Packet permits GameFoundPacket, GameStartPacket, ResultPacket, TestPacket {}
+public abstract sealed class Packet permits GameFoundPacket, GameStartPacket, ResultPacket, TestPacket, UserJoinPacket {}
