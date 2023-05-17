@@ -1,4 +1,4 @@
-package dev.battlesweeper.backend.json;
+package dev.battlesweeper.backend.objects.json;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;

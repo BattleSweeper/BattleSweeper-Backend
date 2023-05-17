@@ -1,9 +1,9 @@
-package dev.battlesweeper.backend.socket.packet;
+package dev.battlesweeper.backend.objects.packet;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import dev.battlesweeper.backend.json.PacketDeserializer;
-import dev.battlesweeper.backend.json.PacketSerializer;
+import dev.battlesweeper.backend.objects.json.PacketDeserializer;
+import dev.battlesweeper.backend.objects.json.PacketSerializer;
 
 @JsonDeserialize(using = PacketDeserializer.class)
 @JsonSerialize(using = PacketSerializer.class)

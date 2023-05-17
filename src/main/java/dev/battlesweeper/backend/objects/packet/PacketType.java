@@ -1,4 +1,4 @@
-package dev.battlesweeper.backend.socket.packet;
+package dev.battlesweeper.backend.objects.packet;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

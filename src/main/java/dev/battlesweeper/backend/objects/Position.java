@@ -2,8 +2,8 @@ package dev.battlesweeper.backend.objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import dev.battlesweeper.backend.json.PositionDeserializer;
-import dev.battlesweeper.backend.json.PositionSerializer;
+import dev.battlesweeper.backend.objects.json.PositionDeserializer;
+import dev.battlesweeper.backend.objects.json.PositionSerializer;
 import lombok.Builder;
 
 @JsonSerialize(as = Position.class, using = PositionSerializer.class)

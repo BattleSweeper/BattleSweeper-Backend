@@ -4,16 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.battlesweeper.backend.auth.EmailSender;
 import dev.battlesweeper.backend.objects.Position;
-import dev.battlesweeper.backend.socket.packet.GameFoundPacket;
-import dev.battlesweeper.backend.socket.packet.Packet;
-import dev.battlesweeper.backend.socket.packet.TestPacket;
 import dev.battlesweeper.backend.utils.EmailUtils;
 import dev.battlesweeper.backend.utils.StringUtils;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.annotation.Testable;
-
-import java.util.UUID;
 
 @Testable
 public class SimpleTest {

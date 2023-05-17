@@ -1,12 +1,12 @@
-package dev.battlesweeper.backend.json;
+package dev.battlesweeper.backend.objects.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import dev.battlesweeper.backend.socket.packet.Packet;
-import dev.battlesweeper.backend.socket.packet.PacketType;
+import dev.battlesweeper.backend.objects.packet.Packet;
+import dev.battlesweeper.backend.objects.packet.PacketType;
 
 import java.io.IOException;
 import java.util.HashMap;

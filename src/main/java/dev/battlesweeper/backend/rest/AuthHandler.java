@@ -8,7 +8,7 @@ import dev.battlesweeper.backend.objects.user.AnonymousUser;
 import dev.battlesweeper.backend.rest.body.AuthRequestBody;
 import dev.battlesweeper.backend.rest.body.RefreshRequestBody;
 import dev.battlesweeper.backend.socket.WebSocketConfig;
-import dev.battlesweeper.backend.socket.packet.ResultPacket;
+import dev.battlesweeper.backend.objects.packet.ResultPacket;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

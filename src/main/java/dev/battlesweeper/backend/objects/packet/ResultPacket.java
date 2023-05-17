@@ -1,10 +1,8 @@
-package dev.battlesweeper.backend.socket.packet;
+package dev.battlesweeper.backend.objects.packet;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-
-import java.net.HttpURLConnection;
 
 @JsonDeserialize(as = ResultPacket.class)
 @AllArgsConstructor
