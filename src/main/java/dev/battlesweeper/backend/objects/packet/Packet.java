@@ -1,10 +1,8 @@
 package dev.battlesweeper.backend.objects.packet;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import dev.battlesweeper.backend.objects.json.PacketDeserializer;
-import dev.battlesweeper.backend.objects.json.PacketSerializer;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-@JsonDeserialize(using = PacketDeserializer.class)
-@JsonSerialize(using = PacketSerializer.class)
-public abstract sealed class Packet permits GameFoundPacket, GameStartPacket, ResultPacket, TestPacket, UserJoinPacket {}
+//@JsonDeserialize(using = PacketDeserializer.class)
+//@JsonSerialize(using = PacketSerializer.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+public abstract sealed class Packet permits FlagPlacePacket, GameFoundPacket, GameStartPacket, ResultPacket, TestPacket, UserJoinPacket {}

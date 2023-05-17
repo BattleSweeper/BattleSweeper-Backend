@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.battlesweeper.backend.auth.AuthTokenManager;
 import dev.battlesweeper.backend.game.GameSessionManager;
 import dev.battlesweeper.backend.objects.UserConnection;
+import dev.battlesweeper.backend.objects.json.PacketHandlerModule;
 import dev.battlesweeper.backend.objects.user.User;
 import dev.battlesweeper.backend.objects.packet.GameFoundPacket;
 import dev.battlesweeper.backend.objects.packet.Packet;
@@ -98,5 +99,9 @@ public class QueueHandler extends TextWebSocketHandler {
             if (isRemoved)
                 logger.info("${user.toString()} disconnected abnormally");
         }
+    }
+
+    public QueueHandler() {
+        objMapper.registerModule(new PacketHandlerModule());
     }
 }

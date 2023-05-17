@@ -6,6 +6,7 @@ import dev.battlesweeper.backend.game.BoardGenerator;
 import dev.battlesweeper.backend.game.GameSession;
 import dev.battlesweeper.backend.game.GameSessionManager;
 import dev.battlesweeper.backend.objects.Position;
+import dev.battlesweeper.backend.objects.json.PacketHandlerModule;
 import dev.battlesweeper.backend.objects.packet.GameStartPacket;
 import dev.battlesweeper.backend.objects.packet.ResultPacket;
 import dev.battlesweeper.backend.objects.packet.UserJoinPacket;
@@ -26,11 +27,11 @@ public class RoomHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) throws Exception {
-        var gameSession = retrieveSession(session.getHandshakeHeaders());
+        var gameSession = retrieveSession(session);
         if (gameSession == null) {
             var packet = new ResultPacket(
                     ResultPacket.RESULT_BAD_DATA,
-                    "No session associated with token found"
+                    "No session associated with connection found"
             );
             session.sendMessage(new TextMessage(objMapper.writeValueAsString(packet)));
             session.close(CloseStatus.BAD_DATA);
@@ -101,18 +102,16 @@ public class RoomHandler extends TextWebSocketHandler {
 
     }
 
-    private GameSession retrieveSession(HttpHeaders headers) {
-        var token = headers.getFirst(HttpHeaders.AUTHORIZATION);
-        if (token == null)
-            return null;
+    private GameSession retrieveSession(WebSocketSession session) {
 
-        if (!token.startsWith("Bearer "))
-            return null;
-        token = token.substring("Bearer ".length());
 
-        var user = AuthTokenManager.getInstance().getUserFromToken(token);
+        var user = AuthTokenManager.getInstance().getUserFromToken("");
         return user
                 .map(value -> GameSessionManager.getInstance().getSessionOfUser(value))
                 .orElse(null);
+    }
+
+    public RoomHandler() {
+        objMapper.registerModule(new PacketHandlerModule());
     }
 }
