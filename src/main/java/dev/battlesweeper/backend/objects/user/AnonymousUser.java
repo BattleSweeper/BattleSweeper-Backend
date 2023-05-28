@@ -1,5 +1,6 @@
 package dev.battlesweeper.backend.objects.user;
 
+import dev.battlesweeper.backend.objects.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,5 +20,10 @@ public class AnonymousUser implements User {
         id = user.getId();
         name = user.getName();
         return this;
+    }
+
+    @Override
+    public UserInfo toUserInfo() {
+        return new UserInfo(id, name);
     }
 }

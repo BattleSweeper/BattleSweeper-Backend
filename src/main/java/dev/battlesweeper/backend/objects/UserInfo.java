@@ -1,8 +1,6 @@
 package dev.battlesweeper.backend.objects;
 
-import java.util.UUID;
-
-public record UserInfo(UUID id, String name) {
+public record UserInfo(Long id, String name) {
 
     @Override
     public String toString() {

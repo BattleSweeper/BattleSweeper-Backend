@@ -1,5 +1,6 @@
 package dev.battlesweeper.backend.objects.user;
 
+import dev.battlesweeper.backend.objects.UserInfo;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,5 +32,10 @@ public class RegisteredUser implements User {
             joinMillis = nUser.getJoinMillis();
         }
         return this;
+    }
+
+    @Override
+    public UserInfo toUserInfo() {
+        return new UserInfo(id, name);
     }
 }

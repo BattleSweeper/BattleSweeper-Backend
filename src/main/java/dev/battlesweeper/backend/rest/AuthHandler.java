@@ -9,6 +9,7 @@ import dev.battlesweeper.backend.rest.body.AuthRequestBody;
 import dev.battlesweeper.backend.rest.body.RefreshRequestBody;
 import dev.battlesweeper.backend.socket.WebSocketConfig;
 import dev.battlesweeper.backend.objects.packet.ResultPacket;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.NoSuchAlgorithmException;
 
-@RestController
+@RestController @Slf4j
 public class AuthHandler {
 
     private final UserService userService;
@@ -36,6 +37,7 @@ public class AuthHandler {
                         .name(form.info.username)
                         .build();
                 AnonymousUserManager.getInstance().registerUser(user);
+                log.info("New anonymous user " + user.getName() + "(" + user.getId() + ")");
 
                 var accessToken = AuthTokenManager.getInstance().createAuthToken(user);
                 return new ResultPacket(ResultPacket.RESULT_OK, accessToken.toJsonString());

@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.battlesweeper.backend.auth.EmailSender;
 import dev.battlesweeper.backend.objects.Position;
 import dev.battlesweeper.backend.objects.json.PacketHandlerModule;
-import dev.battlesweeper.backend.objects.packet.FlagPlacePacket;
-import dev.battlesweeper.backend.objects.packet.Packet;
+import dev.battlesweeper.backend.objects.packet.TileUpdatePacket;
 import dev.battlesweeper.backend.utils.EmailUtils;
 import dev.battlesweeper.backend.utils.StringUtils;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -46,10 +45,10 @@ public class SimpleTest {
     void testGameEventPacket() throws JsonProcessingException {
         var mapper = new ObjectMapper().registerModule(new PacketHandlerModule());
 
-        var packet = new FlagPlacePacket(UUID.randomUUID(), new Position(10, 10), 10);
+        var packet = new TileUpdatePacket(UUID.randomUUID(), new Position(10, 10), 10);
         var serialized = mapper.writeValueAsString(packet);
         System.out.println(serialized);
-        var deserialized = mapper.readValue(serialized, FlagPlacePacket.class);
+        var deserialized = mapper.readValue(serialized, TileUpdatePacket.class);
         System.out.println(deserialized);
     }
 }

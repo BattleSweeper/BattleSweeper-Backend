@@ -25,8 +25,15 @@ public class PacketAnnotationIntrospector extends JacksonAnnotationIntrospector 
 
     @Override
     public List<NamedType> findSubtypes(Annotated a) {
-        if (a.getAnnotated() instanceof Class<?> klass && klass.getSuperclass().isSealed() && klass.getSuperclass() == Packet.class) {
-            Class<?>[] permittedSubclasses = klass.getSuperclass().getPermittedSubclasses();
+        if (a.getAnnotated() instanceof Class<?> klass) {
+            Class<?>[] permittedSubclasses;
+            if (klass.getSuperclass().isSealed() && klass.getSuperclass() == Packet.class)
+                permittedSubclasses = klass.getSuperclass().getPermittedSubclasses();
+            else if (klass == Packet.class)
+                permittedSubclasses = klass.getPermittedSubclasses();
+            else
+                permittedSubclasses = new Class<?>[]{};
+
             if (permittedSubclasses.length > 0) {
                 return Arrays.stream(permittedSubclasses)
                         .map(c -> {

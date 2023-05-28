@@ -1,6 +1,7 @@
 package dev.battlesweeper.backend.auth;
 
 import dev.battlesweeper.backend.db.UserService;
+import dev.battlesweeper.backend.objects.UserInfo;
 import dev.battlesweeper.backend.objects.user.AnonymousUser;
 import dev.battlesweeper.backend.objects.user.RegisteredUser;
 import dev.battlesweeper.backend.objects.user.User;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -102,6 +104,16 @@ public class AuthTokenManager {
         }
 
         return user;
+    }
+
+    public Optional<UserInfo> getUserInfoFromToken(String token) {
+        var claims = retrieveClaims(token);
+        Long userId = claims.get("uid", Long.class);
+        String name = claims.get("name", String.class);
+        if (userId == null || name == null)
+            return Optional.empty();
+
+        return Optional.of(new UserInfo(userId, name));
     }
 
     private Claims retrieveClaims(String token) {

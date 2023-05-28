@@ -40,7 +40,11 @@ public class UserConnection {
     }
 
     public void sendMessage(WebSocketMessage<?> message) throws IOException {
-        session.sendMessage(message);
+        if (session == null)
+            return;
+        synchronized (session) {
+            session.sendMessage(message);
+        }
     }
 
     public void sendText(String message) throws IOException {

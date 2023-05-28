@@ -8,6 +8,7 @@ import dev.battlesweeper.backend.objects.json.PacketHandlerModule;
 import dev.battlesweeper.backend.objects.user.User;
 import dev.battlesweeper.backend.objects.packet.GameFoundPacket;
 import dev.battlesweeper.backend.objects.packet.Packet;
+import dev.battlesweeper.backend.rest.Message;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public class QueueHandler extends TextWebSocketHandler {
 
     private final Logger logger = LoggerFactory.getLogger(QueueHandler.class);
 
-    private static final int QUEUE_BLOCK_SIZE = 1;
+    private static final int QUEUE_BLOCK_SIZE = 2;
     private static final Queue<QueueData> userQueue = new ConcurrentLinkedQueue<>();
 
     private final ObjectMapper objMapper = new ObjectMapper();
@@ -46,13 +47,13 @@ public class QueueHandler extends TextWebSocketHandler {
         HttpHeaders headers = session.getHandshakeHeaders();
         var token = headers.getFirst("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
-            session.close(CloseStatus.NOT_ACCEPTABLE);
+            session.close(CloseStatus.NOT_ACCEPTABLE.withReason(Message.TOKEN_EXPIRED));
             return;
         }
 
         token = token.substring("Bearer ".length());
         if (!AuthTokenManager.getInstance().isTokenValid(token)) {
-            session.close(CloseStatus.NOT_ACCEPTABLE);
+            session.close(CloseStatus.NOT_ACCEPTABLE.withReason(Message.TOKEN_EXPIRED));
             return;
         }
 

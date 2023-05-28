@@ -16,11 +16,20 @@ public class BoardGenerator {
             Position nPos;
             do {
                 nPos = getRandomPosition(boardSize.x(), boardSize.y());
-            } while (positions.contains(nPos));
+            } while (positions.contains(nPos) && countNearbyMines(positions, nPos) > 4);
             positions.add(nPos);
         }
 
         return positions.toArray(new Position[0]);
+    }
+
+    private static int countNearbyMines(Set<Position> mines, Position mine) {
+        int c = 0;
+        for (var pos : mines) {
+            if (pos.isNearby(mine, 1))
+                c++;
+        }
+        return c;
     }
 
     private static Position getRandomPosition(int limX, int limY) {

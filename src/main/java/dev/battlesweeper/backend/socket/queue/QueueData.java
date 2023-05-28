@@ -1,7 +1,6 @@
 package dev.battlesweeper.backend.socket.queue;
 
 import dev.battlesweeper.backend.objects.UserConnection;
-import dev.battlesweeper.backend.objects.UserInfo;
 import dev.battlesweeper.backend.objects.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -6,10 +6,10 @@ import dev.battlesweeper.backend.game.BoardGenerator;
 import dev.battlesweeper.backend.game.GameSession;
 import dev.battlesweeper.backend.game.GameSessionManager;
 import dev.battlesweeper.backend.objects.Position;
+import dev.battlesweeper.backend.objects.UserInfo;
 import dev.battlesweeper.backend.objects.json.PacketHandlerModule;
-import dev.battlesweeper.backend.objects.packet.GameStartPacket;
-import dev.battlesweeper.backend.objects.packet.ResultPacket;
-import dev.battlesweeper.backend.objects.packet.UserJoinPacket;
+import dev.battlesweeper.backend.objects.packet.*;
+import dev.battlesweeper.backend.rest.Message;
 import lombok.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -29,20 +29,27 @@ public class RoomHandler extends TextWebSocketHandler {
     protected void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) throws Exception {
         var gameSession = retrieveSession(session);
         if (gameSession == null) {
-            var packet = new ResultPacket(
-                    ResultPacket.RESULT_BAD_DATA,
-                    "No session associated with connection found"
-            );
+            var packet = new ResultPacket(ResultPacket.RESULT_BAD_DATA, Message.NO_SESSION_FOUND);
             session.sendMessage(new TextMessage(objMapper.writeValueAsString(packet)));
-            session.close(CloseStatus.BAD_DATA);
             return;
         }
-        String payload = message.getPayload();
 
-        if (payload.equals("test")) {
-            Position[] mines = { new Position(1, 2), new Position(5, 3), new Position(10, 6) };
-            var packet = new GameStartPacket(new Position(16, 16), mines);
-            gameSession.broadcast(objMapper.writeValueAsString(packet));
+        var userInfo = retrieveUserInfo(session);
+        if (userInfo == null) {
+            var packet = new ResultPacket(ResultPacket.RESULT_BAD_DATA, Message.TOKEN_INVALID);
+            session.sendMessage(new TextMessage(objMapper.writeValueAsString(packet)));
+            return;
+        }
+
+        String payload = message.getPayload();
+        var packet = objMapper.readValue(payload, Packet.class);
+
+        if (packet instanceof TileUpdatePacket || packet instanceof GameUpdatePacket) {
+            var nPacket = PlayerUpdatePacket.builder()
+                    .user(userInfo)
+                    .packet(packet)
+                    .build();
+            gameSession.broadcast(nPacket);
         }
     }
 
@@ -84,16 +91,17 @@ public class RoomHandler extends TextWebSocketHandler {
         }
 
         gameSession.markJoined(user.get().getId(), session);
-        var msg = objMapper.writeValueAsString(new ResultPacket(ResultPacket.RESULT_OK, null));
-        session.sendMessage(new TextMessage(msg));
+        //var msg = objMapper.writeValueAsString(new ResultPacket(ResultPacket.RESULT_OK, null));
+        //session.sendMessage(new TextMessage(msg));
 
         gameSession.broadcast(new UserJoinPacket(user.get()));
 
         if (gameSession.allUserJoined()) {
             var boardSize = new Position(16, 16);
             var mines = BoardGenerator.generateMines(boardSize, 40);
+            var users = gameSession.getAllUserInfo();
 
-            gameSession.broadcast(new GameStartPacket(boardSize, mines));
+            gameSession.broadcast(new GameStartPacket(users, boardSize, mines));
         }
     }
 
@@ -103,12 +111,21 @@ public class RoomHandler extends TextWebSocketHandler {
     }
 
     private GameSession retrieveSession(WebSocketSession session) {
+        var headers = session.getHandshakeHeaders();
+        var roomID = headers.getFirst("room-id");
+        if (roomID == null)
+            return null;
+        return GameSessionManager.getInstance().getSessionById(UUID.fromString(roomID));
+    }
 
-
-        var user = AuthTokenManager.getInstance().getUserFromToken("");
-        return user
-                .map(value -> GameSessionManager.getInstance().getSessionOfUser(value))
-                .orElse(null);
+    private UserInfo retrieveUserInfo(WebSocketSession session) {
+        var headers = session.getHandshakeHeaders();
+        var token = headers.getFirst("Authorization");
+        if (token == null)
+            return null;
+        token = token.substring("Bearer ".length());
+        var info = AuthTokenManager.getInstance().getUserInfoFromToken(token);
+        return info.orElse(null);
     }
 
     public RoomHandler() {

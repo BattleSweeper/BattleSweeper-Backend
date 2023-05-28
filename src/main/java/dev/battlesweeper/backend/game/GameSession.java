@@ -2,6 +2,7 @@ package dev.battlesweeper.backend.game;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.battlesweeper.backend.objects.UserConnection;
+import dev.battlesweeper.backend.objects.UserInfo;
 import dev.battlesweeper.backend.objects.json.PacketHandlerModule;
 import dev.battlesweeper.backend.objects.user.User;
 import dev.battlesweeper.backend.objects.packet.Packet;
@@ -29,6 +30,13 @@ public class GameSession {
         this.startedAt   = startedAt;
 
         objMapper.registerModule(new PacketHandlerModule());
+    }
+
+    public List<UserInfo> getAllUserInfo() {
+        return connections.values()
+                .stream()
+                .map(v -> v.getUser().toUserInfo())
+                .toList();
     }
 
     public boolean allUserJoined() {

@@ -10,4 +10,5 @@ public final class Message {
     public static final String PASSWORD_MISMATCH = "PASSWORD_MISMATCH";
     public static final String TOKEN_EXPIRED     = "TOKEN_EXPIRED";
     public static final String TOKEN_INVALID     = "TOKEN_INVALID";
+    public static final String NO_SESSION_FOUND  = "NO_SESSION_FOUND";
 }
