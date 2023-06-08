@@ -21,7 +21,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 
-        registry.addHandler(queueHandler, ROUTE_PREFIX + "/queue/register").setAllowedOrigins("*");
+        registry.addHandler(queueHandler, ROUTE_PREFIX + "/queue/register/duo").setAllowedOrigins("*");
+        registry.addHandler(queueHandler, ROUTE_PREFIX + "/queue/register/battle").setAllowedOrigins("*");
         registry.addHandler(roomHandler , ROUTE_PREFIX + "/room").setAllowedOrigins("*");
     }
 }
