@@ -2,7 +2,6 @@ package dev.battlesweeper.backend.db;
 
 import dev.battlesweeper.backend.objects.user.RegisteredUser;
 import jakarta.annotation.Nonnull;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
