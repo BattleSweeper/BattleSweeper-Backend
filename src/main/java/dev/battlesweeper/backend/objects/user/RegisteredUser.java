@@ -22,6 +22,8 @@ public class RegisteredUser implements User {
 
     Long joinMillis;
 
+    Long clearTime = 0L;
+
     @Override
     public RegisteredUser overwrite(User user) {
         id = user.getId();
