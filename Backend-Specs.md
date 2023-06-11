@@ -41,3 +41,8 @@
 + `POST http|https:/auth/refresh`: Refresh JWT Token
   + params:
     + token: string // Refresh token from `/auth`
+</br></br>
+##### Rank
++ `GET http|https:/rank`: Retrieves user rank sorted by clear time
+  + params:
+    + limit: int (optional) // Limit the size of result
