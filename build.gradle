@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'dev.battlesweeper'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 sourceCompatibility = '17'
 
 configurations {
@@ -68,14 +68,12 @@ if (JavaVersion.current() != JavaVersion.VERSION_1_8 &&
         sourceSets.main.allJava.files.any {it.name == "module-info.java"}) {
     tasks.withType(JavaCompile).tap {
         configureEach {
-            // if you DO define a module-info.java file:
             options.compilerArgs += ['-Xplugin:Manifold', '--module-path', it.classpath.asPath]
         }
     }
 } else {
     tasks.withType(JavaCompile).tap {
         configureEach {
-            // If you DO NOT define a module-info.java file:
             options.compilerArgs += ['-Xplugin:Manifold']
         }
     }
